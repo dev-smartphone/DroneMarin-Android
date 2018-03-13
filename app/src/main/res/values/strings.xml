@@ -3,4 +3,5 @@
     <string name="d_finir_trajectoire">Définir trajectoire</string>
     <string name="lire_nmea">Lire NMEA</string>
     <string name="menu">Menu principal</string>
+    <string name="title_activity_waypoint">Map</string>
 </resources>
