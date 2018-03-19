@@ -16,10 +16,7 @@ public class PositionGPS {
     //private SerialGPS gps;
     private float longitude;
     private float latitude;
-    private float minLat;
-    private float minLon;
-    private String dirNS;
-    private String dirEO;
+
     private boolean trameGPS;
     private String tr;
 
@@ -32,7 +29,7 @@ public class PositionGPS {
             String lati = parts[1];
             String lat = lati.substring(0, lati.length() - 5);
             String minLati=lati.substring(lati.length()-5);
-            minLat=Float.parseFloat(minLati)/60;
+            float minLat=Float.parseFloat(minLati)/60;
             latitude = Float.parseFloat(lat)+minLat;
 
 
@@ -40,14 +37,14 @@ public class PositionGPS {
             String lon = parts[3];
             String longi = lon.substring(0, lon.length() - 5);
             String minLongi=lon.substring(lon.length()-5);
-            minLon=Float.parseFloat(minLongi)/60;
+            float minLon=Float.parseFloat(minLongi)/60;
 
             longitude = Float.parseFloat(longi)+minLon;
 
 
-            dirNS = parts[2];
+            String dirNS = parts[2];
 
-            dirEO = parts[4];
+            String dirEO = parts[4];
 
             if(dirNS.equals("S") )
             {
@@ -62,10 +59,7 @@ public class PositionGPS {
             trameGPS = false;
             latitude = 0;
             longitude = 0;
-            minLat=0;
-            minLon=0;
-            dirNS = null;
-            dirEO = null;
+
         }
 
     }
@@ -80,28 +74,12 @@ public class PositionGPS {
         return  this.latitude;
     }
 
-    public String getDirNS()
-    {
-        return this.dirNS;
-    }
-
-    public String getDirEO()
-    {
-        return this.dirEO;
-    }
 
     public Boolean getTrameGPS()
     {
         return this.trameGPS;
     }
 
-    public float getMinLat()
-    {
-        return this.minLat;
-    }
-    public float getMinLon()
-    {
-        return this.minLon;
-    }
+
 }
 
