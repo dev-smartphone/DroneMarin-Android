@@ -1,7 +1,17 @@
 package fr.dronemarin;
 
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.app.FragmentManager;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -9,10 +19,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
-public class WaypointActivity extends FragmentActivity implements OnMapReadyCallback {
+import java.util.List;
+
+import fr.dronemarin.controleur.WaypointDialog;
+import fr.dronemarin.modele.Modele;
+import fr.dronemarin.modele.Waypoint;
+
+public class WaypointActivity extends FragmentActivity implements OnMapReadyCallback, WaypointDialog.WaypointsDialogListener {
 
     private GoogleMap mMap;
+    private LatLng current;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +40,11 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+
+
+
     }
 
 
@@ -35,12 +58,72 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        //LatLng sydney = new LatLng(-34, 151);
+       // mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(46.15,-1.17),12));
+
+
+        refreshWithExisting();
+        googleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                current = latLng;
+                WaypointDialog waypointDialog = new WaypointDialog();
+                waypointDialog.show(getSupportFragmentManager(),"waypoint");
+
+
+            }
+        });
+    }
+
+
+    @Override
+    public void onDialogPositiveClick(DialogInterface dialog) {
+        Location loc = new Location("DroneMarinProvider");
+        loc.setLatitude(current.latitude);
+        loc.setLongitude(current.longitude);
+        EditText speed = ((AlertDialog) dialog).findViewById(R.id.editText2);
+        CheckBox picture = ((AlertDialog) dialog).findViewById(R.id.checkBox);
+        CheckBox stat = ((AlertDialog) dialog).findViewById(R.id.checkBox2);
+
+        double speedInt =0;
+        try{
+           speedInt =  Double.parseDouble(speed.getText().toString());
+        }
+        catch (Exception ignored){}
+
+        mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + speedInt + ", Photo : " + (picture.isChecked() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (stat.isChecked() ? "Oui" : "Non")).position(current).title("Waypoint " + (Modele.getInstance().getWaypoints().size()+1)));
+        Waypoint current = new Waypoint(speedInt,picture.isChecked(),stat.isChecked(),loc);
+
+
+        Waypoint previous = Modele.getInstance().addWaypoint(current);
+        if(previous!=null){
+            mMap.addPolyline(new PolylineOptions().add(new LatLng(previous.getLocation().getLatitude(),previous.getLocation().getLongitude()))
+                    .add(new LatLng(current.getLocation().getLatitude(),current.getLocation().getLongitude())).width(5).color(Color.RED));
+        }
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogInterface dialog) {
+
+    }
+
+    public void refreshWithExisting(){
+        List<Waypoint> existingWaypoints = Modele.getInstance().getWaypoints();
+        for (int i =0; i<Modele.getInstance().getWaypoints().size();i++){
+            mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + existingWaypoints.get(i).getVitesse() + ", Photo : " + (existingWaypoints.get(i).isPriseImage() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (existingWaypoints.get(i).isPointStationnaire() ? "Oui" : "Non")).position(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).title("Waypoint " + (i+1)));
+            if(i>0)
+            {
+                mMap.addPolyline(new PolylineOptions().add(new LatLng(existingWaypoints.get(i-1).getLocation().getLatitude(),existingWaypoints.get(i-1).getLocation().getLongitude()))
+                        .add(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).width(5).color(Color.RED));
+            }
+
+        }
+
     }
 }
