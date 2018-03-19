@@ -2,11 +2,13 @@ package fr.dronemarin.modele;
 
 import android.location.Location;
 
+import java.io.Serializable;
+
 /**
  * Created by joshu on 09/03/2018.
  */
 
-public class Waypoint {
+public class Waypoint implements Serializable{
     private double vitesse;
     private boolean priseImage;
     private boolean pointStationnaire;

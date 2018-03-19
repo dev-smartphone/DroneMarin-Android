@@ -22,9 +22,11 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.Serializable;
 import java.util.List;
 
 import fr.dronemarin.controleur.WaypointDialog;
@@ -32,10 +34,11 @@ import fr.dronemarin.controleur.WaypointManagerActivity;
 import fr.dronemarin.modele.Modele;
 import fr.dronemarin.modele.Waypoint;
 
-public class WaypointActivity extends FragmentActivity implements OnMapReadyCallback, WaypointDialog.WaypointsDialogListener {
+public class WaypointActivity extends FragmentActivity implements Serializable, OnMapReadyCallback, WaypointDialog.WaypointsDialogListener {
 
     private GoogleMap mMap;
     private LatLng current;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,10 +91,22 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
             @Override
             public void onMapClick(LatLng latLng) {
                 current = latLng;
-                WaypointDialog waypointDialog = new WaypointDialog();
-                waypointDialog.show(getSupportFragmentManager(),"waypoint");
+                WaypointDialog currentDialog= new WaypointDialog();
+                currentDialog.show(getSupportFragmentManager(),"waypoint");
 
+            }
+        });
 
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                WaypointDialog currentDialog = new WaypointDialog();
+                Bundle b = new Bundle();
+                b.putSerializable("waypoint", Modele.getInstance().getWaypoints().get(Integer.parseInt(marker.getTitle())));
+                b.putSerializable("activity",WaypointActivity.this);
+                currentDialog.setArguments(b);
+                currentDialog.show(getSupportFragmentManager(),"waypoint");
+                return false;
             }
         });
     }
@@ -112,9 +127,8 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
         }
         catch (Exception ignored){}
 
-        mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + speedInt + ", Photo : " + (picture.isChecked() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (stat.isChecked() ? "Oui" : "Non")).position(current).title("Waypoint " + (Modele.getInstance().getWaypoints().size()+1)));
+        mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + speedInt + ", Photo : " + (picture.isChecked() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (stat.isChecked() ? "Oui" : "Non")).position(current).title( ""+Modele.getInstance().getWaypoints().size())).showInfoWindow();
         Waypoint current = new Waypoint(speedInt,picture.isChecked(),stat.isChecked(),loc);
-
 
         Waypoint previous = Modele.getInstance().addWaypoint(current);
         if(previous!=null){
@@ -131,7 +145,7 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
     public void refreshWithExisting(){
         List<Waypoint> existingWaypoints = Modele.getInstance().getWaypoints();
         for (int i =0; i<Modele.getInstance().getWaypoints().size();i++){
-            mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + existingWaypoints.get(i).getVitesse() + ", Photo : " + (existingWaypoints.get(i).isPriseImage() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (existingWaypoints.get(i).isPointStationnaire() ? "Oui" : "Non")).position(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).title("Waypoint " + (i+1)));
+            mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + existingWaypoints.get(i).getVitesse() + ", Photo : " + (existingWaypoints.get(i).isPriseImage() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (existingWaypoints.get(i).isPointStationnaire() ? "Oui" : "Non")).position(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).title(""+ i)).showInfoWindow();
             if(i>0)
             {
                 mMap.addPolyline(new PolylineOptions().add(new LatLng(existingWaypoints.get(i-1).getLocation().getLatitude(),existingWaypoints.get(i-1).getLocation().getLongitude()))
@@ -144,11 +158,13 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i("INFO","Refrshing the map");
+
         mMap.clear();
         refreshWithExisting();
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
+    public GoogleMap getmMap() {
+        return mMap;
+    }
 }
