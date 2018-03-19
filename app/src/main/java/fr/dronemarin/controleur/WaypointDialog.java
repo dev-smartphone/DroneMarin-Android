@@ -29,7 +29,7 @@ public class WaypointDialog extends android.support.v4.app.DialogFragment {
         // Use the Builder class for convenient dialog construction
         final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        builder.setMessage("Nouveau Waypoint")
+        builder.setMessage("Propriété du waypoint")
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         mListener.onDialogPositiveClick(dialog);

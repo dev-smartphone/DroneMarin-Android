@@ -23,13 +23,13 @@ public class Vue2Activity extends AppCompatActivity {
     }
 
     public double[] DecimalToNMEAConverter(double lat, double lng) {
-        String dcmLatString = null;
-        int latDegree = 0;
-        double latMinutes = 0, dcmLat = 0, absLat = 0;
+        String dcmLatString;
+        int latDegree;
+        double latMinutes, dcmLat, absLat;
 
-        String dcmLngString = null;
-        int lngDegree = 0;
-        double lngMinutes = 0, dcmLng = 0, absLng = 0;
+        String dcmLngString;
+        int lngDegree;
+        double lngMinutes, dcmLng, absLng;
 
         Log.i("Decimal to NMEA", "Decimal To NMEA: " + lat + " Longitude: "  + lng);
         if (lat < 0) {

@@ -10,6 +10,7 @@ import android.graphics.PorterDuff;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -71,7 +72,9 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
      */
     @Override
     public void onMapReady(final GoogleMap googleMap) {
+
         mMap = googleMap;
+
 
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);
@@ -138,4 +141,14 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
         }
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i("INFO","Refrshing the map");
+        mMap.clear();
+        refreshWithExisting();
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
 }
