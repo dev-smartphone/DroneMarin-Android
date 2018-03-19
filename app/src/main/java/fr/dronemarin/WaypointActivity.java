@@ -4,11 +4,14 @@ import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,6 +27,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import java.util.List;
 
 import fr.dronemarin.controleur.WaypointDialog;
+import fr.dronemarin.controleur.WaypointManagerActivity;
 import fr.dronemarin.modele.Modele;
 import fr.dronemarin.modele.Waypoint;
 
@@ -40,6 +44,14 @@ public class WaypointActivity extends FragmentActivity implements OnMapReadyCall
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        findViewById(R.id.buttonWay).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(WaypointActivity.this, WaypointManagerActivity.class);
+                startActivityForResult(intent,1);
+            }
+        });
 
 
 

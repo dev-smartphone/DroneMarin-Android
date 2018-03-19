@@ -41,7 +41,10 @@
         <activity
             android:name=".WaypointActivity"
             android:label="@string/title_activity_waypoint" />
-
+        <activity
+            android:name=".controleur.WaypointManagerActivity"
+            android:label="@string/title_activity_waypoint_manager"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>
