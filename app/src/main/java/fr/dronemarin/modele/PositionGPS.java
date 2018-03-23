@@ -1,19 +1,16 @@
 
 package fr.dronemarin.modele;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/**
- *
- * @author macos
- */
+import android.os.AsyncTask;
+import android.util.Log;
 
-public class PositionGPS {
-    //private PositionGPS util;
-    //private SerialGPS gps;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
+public class PositionGPS extends AsyncTask<String, String, String>{
     private float longitude;
     private float latitude;
 
@@ -41,7 +38,7 @@ public class PositionGPS {
 
             longitude = Float.parseFloat(longi)+minLon;
 
-
+            Log.d("position","Lat: "+this.latitude+" Lon: "+this.longitude);
             String dirNS = parts[2];
 
             String dirEO = parts[4];
@@ -65,21 +62,68 @@ public class PositionGPS {
     }
 
     public float getLongitude()
+
     {
         return this.longitude;
     }
 
     public float getLatitude()
+
     {
         return  this.latitude;
     }
 
 
     public Boolean getTrameGPS()
+
     {
         return this.trameGPS;
     }
 
 
-}
+    protected Object doInBackground(String objet) {
+        Socket socket;
+        PrintStream theOutputStream;
 
+        try {
+
+            InetAddress serveur = InetAddress.getByName("127.0.0.1");
+            socket = new Socket(serveur, 1130);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintStream out = new PrintStream(socket.getOutputStream());
+            boolean ok=true;
+            PositionGPS test;
+            int i=0;
+            while(ok)
+            {
+                if(i!=0)
+                {
+                    test=new PositionGPS(in.readLine());
+                    Log.d("GetTest", "lat = "+test.getLatitude());
+                    if(test.getTrameGPS())
+                    {
+
+                        float lon=test.getLongitude();
+                        float lat=test.getLatitude();
+
+                        Log.i("test", "Lat: "+lat+" Lon: "+lon);
+                    }
+                }
+                i++;
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+
+        return null;
+    }
+
+    @Override
+    protected String doInBackground(String... strings) {
+        return null;
+    }
+}

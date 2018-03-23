@@ -78,4 +78,5 @@
 
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="title_activity_waypoint_manager">Liste des Waypoints</string>
+    <string name="title_activity_vue1">Map</string>
 </resources>
