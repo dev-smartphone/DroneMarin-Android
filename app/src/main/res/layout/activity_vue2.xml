@@ -16,4 +16,25 @@
         android:padding="10dp"
         android:layout_marginTop="20dp"
         android:paddingRight="20dp"/>
+
+    <Button
+        android:id="@+id/buttonJson"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="Export as Json"
+        android:padding="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="100dp"
+        android:paddingRight="20dp"/>
+    <Button
+        android:id="@+id/buttonNmea"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|bottom"
+        android:text="Export as Nmea"
+        android:padding="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="240dp"
+        android:paddingRight="20dp"/>
 </fragment>
