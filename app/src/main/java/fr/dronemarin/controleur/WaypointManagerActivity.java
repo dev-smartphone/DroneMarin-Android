@@ -7,7 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
+
+import java.util.List;
 
 import fr.dronemarin.R;
 import fr.dronemarin.modele.Modele;
@@ -25,8 +29,13 @@ public class WaypointManagerActivity extends AppCompatActivity {
             Button b = new Button(this);
             b.setText(index+"");
             index++;
-            ViewGroup layout = (ViewGroup)findViewById(R.id.linear);
-            layout.addView(b);
+           ListView lv = (ListView) findViewById(R.id.wayList);
+        //    final ArrayAdapter<Waypoint> arrayAdapter = new ArrayAdapter<Waypoint>
+             //       (this, R.layout., Modele.getInstance().getWaypoints());
+
+            //lv.setAdapter(arrayAdapter);
+            //ViewGroup layout = findViewById(R.id.linear);
+            //layout.addView(b);
         }
 
 

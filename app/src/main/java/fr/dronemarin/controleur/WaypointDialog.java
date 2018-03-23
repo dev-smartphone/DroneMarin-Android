@@ -1,15 +1,11 @@
 package fr.dronemarin.controleur;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +14,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import fr.dronemarin.R;
-import fr.dronemarin.WaypointActivity;
 import fr.dronemarin.modele.Modele;
 import fr.dronemarin.modele.Waypoint;
 
@@ -89,7 +84,7 @@ public class WaypointDialog extends android.support.v4.app.DialogFragment {
                 public void onClick(View view) {
                     Modele.getInstance().getWaypoints().remove(waypoint);
                     WaypointDialog.this.dismiss();
-                    WaypointActivity act = (WaypointActivity) getArguments().getSerializable("activity");
+                    Vue2Activity act = (Vue2Activity) getArguments().getSerializable("activity");
                     act.getmMap().clear();
                     act.refreshWithExisting();
                 }
