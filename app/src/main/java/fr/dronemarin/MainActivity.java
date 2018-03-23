@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import fr.dronemarin.controleur.Vue1Activity;
+import fr.dronemarin.controleur.Vue2Activity;
 
 public class MainActivity extends AppCompatActivity {
 
