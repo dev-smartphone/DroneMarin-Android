@@ -5,19 +5,24 @@ package fr.dronemarin.modele;
  */
 
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 public class Client {
     private Socket socket;
     private Drone drone;
 
     public Client(String adresse, int port) throws IOException {
-        this.socket = new Socket(adresse,port);
+        this.socket = new Socket();
+        this.socket.setSoTimeout(2000);
+        this.socket.connect(new InetSocketAddress(adresse, port),2000);
         this.drone = new Drone();
     }
 

@@ -34,19 +34,22 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Client client = new Client("192.168.137.1", 55555);
+                    Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
+                    client.start();
+                } catch (Exception e) {
+                    Log.d("", "Erreur");
+
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
 
-        try {
-            Client client = new Client("127.0.0.1", 55555);
-            Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
-            client.start();
-        }
-        catch (Exception e)
-        {
-            Log.d("", "Erreur");
-
-            e.printStackTrace();
-        }
 /*
 
         Socket socket;
