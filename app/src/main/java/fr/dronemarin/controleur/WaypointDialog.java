@@ -1,5 +1,4 @@
 package fr.dronemarin.controleur;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-
 import fr.dronemarin.R;
 import fr.dronemarin.modele.Modele;
 import fr.dronemarin.modele.Waypoint;
