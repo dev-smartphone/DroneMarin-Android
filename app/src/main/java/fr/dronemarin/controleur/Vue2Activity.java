@@ -8,6 +8,7 @@ import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.json.JSONArray;
@@ -25,7 +27,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import fr.dronemarin.R;
 import fr.dronemarin.modele.Modele;
@@ -35,10 +40,14 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
 
     private GoogleMap mMap;
     private LatLng current;
+    private Polyline currentRoad;
+    private Map<Waypoint,Marker> markers;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        markers = new HashMap<>();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_vue2);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -106,6 +115,33 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
                 return false;
             }
         });
+
+        googleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                try{
+                    Waypoint w = Modele.getInstance().getWaypoints().get(Integer.parseInt(marker.getTitle()));
+                    Location loc = new Location("DroneMarinProvider");
+                    loc.setLatitude(marker.getPosition().latitude);
+                    loc.setLongitude(marker.getPosition().longitude);
+                    w.setLocation(loc);
+                    refreshWithExisting();
+
+                }
+                catch (Exception ignored){}
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+
+            }
+        });
     }
 
 
@@ -124,14 +160,15 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
         }
         catch (Exception ignored){}
 
-        mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + speedInt + ", Photo : " + (picture.isChecked() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (stat.isChecked() ? "Oui" : "Non")).position(current).title( ""+Modele.getInstance().getWaypoints().size())).showInfoWindow();
+        Marker m = mMap.addMarker(new MarkerOptions().draggable(true).snippet("Vitesse : " + speedInt + ", Photo : " + (picture.isChecked() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (stat.isChecked() ? "Oui" : "Non")).position(current).title( ""+Modele.getInstance().getWaypoints().size()));
         Waypoint current = new Waypoint(speedInt,picture.isChecked(),stat.isChecked(),loc);
-
+        markers.put(current,m);
         Waypoint previous = Modele.getInstance().addWaypoint(current);
-        if(previous!=null){
+        refreshWithExisting();
+        /*if(previous!=null){
             mMap.addPolyline(new PolylineOptions().add(new LatLng(previous.getLocation().getLatitude(),previous.getLocation().getLongitude()))
                     .add(new LatLng(current.getLocation().getLatitude(),current.getLocation().getLongitude())).width(5).color(Color.RED));
-        }
+        }*/
     }
 
     @Override
@@ -140,23 +177,31 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
     }
 
     public void refreshWithExisting(){
-        List<Waypoint> existingWaypoints = Modele.getInstance().getWaypoints();
-        for (int i =0; i<Modele.getInstance().getWaypoints().size();i++){
-            mMap.addMarker(new MarkerOptions().snippet("Vitesse : " + existingWaypoints.get(i).getVitesse() + ", Photo : " + (existingWaypoints.get(i).isPriseImage() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (existingWaypoints.get(i).isPointStationnaire() ? "Oui" : "Non")).position(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).title(""+ i)).showInfoWindow();
-            if(i>0)
-            {
-                mMap.addPolyline(new PolylineOptions().add(new LatLng(existingWaypoints.get(i-1).getLocation().getLatitude(),existingWaypoints.get(i-1).getLocation().getLongitude()))
-                        .add(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).width(5).color(Color.RED));
-            }
-
+        if(current!=null){
+            currentRoad.remove();
         }
+
+        List<Waypoint> existingWaypoints = Modele.getInstance().getWaypoints();
+        List<LatLng> coords = new ArrayList<>();
+        for (int i =0; i<Modele.getInstance().getWaypoints().size();i++){
+
+            //mMap.addMarker(new MarkerOptions().draggable(true).snippet("Vitesse : " + existingWaypoints.get(i).getVitesse() + ", Photo : " + (existingWaypoints.get(i).isPriseImage() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (existingWaypoints.get(i).isPointStationnaire() ? "Oui" : "Non")).position(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).title(""+ i));
+            coords.add(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude()));
+            if(markers.get(existingWaypoints.get(i)) == null){
+                Marker m = mMap.addMarker(new MarkerOptions().draggable(true).snippet("Vitesse : " + existingWaypoints.get(i).getVitesse() + ", Photo : " + (existingWaypoints.get(i).isPriseImage() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (existingWaypoints.get(i).isPriseImage() ? "Oui" : "Non")).position(new LatLng(existingWaypoints.get(i).getLocation().getLatitude(),existingWaypoints.get(i).getLocation().getLongitude())).title( ""+Modele.getInstance().getWaypoints().size()));
+                markers.put(existingWaypoints.get(i),m);
+            }
+            markers.get(existingWaypoints.get(i)).setTitle(i+"");
+        }
+
+
+        currentRoad = mMap.addPolyline(new PolylineOptions().addAll(coords).width(5).color(Color.RED));
+
 
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        mMap.clear();
         refreshWithExisting();
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -235,6 +280,10 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
             e.printStackTrace ( );
         }
         // Log.i("test",json.toString ());
+    }
+
+    public Map<Waypoint, Marker> getMarkers() {
+        return markers;
     }
 
     public GoogleMap getmMap() {

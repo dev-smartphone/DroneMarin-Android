@@ -85,7 +85,9 @@ public class WaypointDialog extends android.support.v4.app.DialogFragment {
                     Modele.getInstance().getWaypoints().remove(waypoint);
                     WaypointDialog.this.dismiss();
                     Vue2Activity act = (Vue2Activity) getArguments().getSerializable("activity");
-                    act.getmMap().clear();
+                    act.getMarkers().get(waypoint).remove();
+                    act.getMarkers().remove(waypoint);
+                    //refaire l'ordre
                     act.refreshWithExisting();
                 }
             });
