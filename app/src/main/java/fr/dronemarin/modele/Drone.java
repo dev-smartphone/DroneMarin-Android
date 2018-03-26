@@ -12,18 +12,18 @@ public class Drone {
     private ArrayList<PositionGPS> position;
 
     public Drone() {
-        position = new ArrayList<>();
+        position = new ArrayList<PositionGPS>();
     }
 
     public void addPositionGPS(PositionGPS p) {
-        if(this.position.get(this.position.size()-1) != p )
-        {
+//        if(this.position.get(this.position.size()-1) != p )
+       // {
             position.add(p);
 
-        }
+        //}
     }
 
-    public ArrayList getPosition()
+    public ArrayList<PositionGPS> getPosition()
     {
         return this.position;
     }

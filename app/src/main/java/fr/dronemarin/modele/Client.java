@@ -8,6 +8,11 @@ package fr.dronemarin.modele;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,19 +31,28 @@ public class Client {
         this.drone = new Drone();
     }
 
-    public void start() throws IOException {
+    public void start(GoogleMap map) throws IOException {
         String ligne;
         while (true) {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             while (!in.ready()) {}
             ligne = in.readLine();
-            Log.i("ligne", "ligne: "+ligne);
+            ligne=in.readLine();
+            //Log.i("ligne", "ligne: "+ ligne);
             PositionGPS pos = new PositionGPS(ligne);
-            if(pos.getTrameGPS())
-                Log.d("","latitude: " + pos.getLatitude() + " longitude: " +pos.getLongitude());
+            if(pos.getTrameGPS()) {
+                Log.i("", "latitude: " + pos.getLatitude() + " longitude: " + pos.getLongitude());
+                drone.addPositionGPS(pos);
+                //LatLng coord=new LatLng(pos.getLatitude(),pos.getLongitude());
+                //map.addMarker(new MarkerOptions()
+                  //      .position(coord)
+                    //    .title(""));
+                //map.moveCamera(CameraUpdateFactory.newLatLng(coord));
 
-            drone.addPositionGPS(pos);
+
+            }
+
         }
     }
 
@@ -47,4 +61,10 @@ public class Client {
         return  this.socket;
     }
 
+
+
+    public Drone getDrone()
+    {
+        return this.drone;
     }
+}
