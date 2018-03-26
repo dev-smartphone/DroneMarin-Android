@@ -1,14 +1,18 @@
 package fr.dronemarin.controleur;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Environment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
@@ -26,6 +30,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,14 +68,23 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-       /* findViewById(R.id.buttonWay).setOnClickListener(new View.OnClickListener() {
+       findViewById(R.id.buttonJson).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Vue2Activity.this, WaypointManagerActivity.class);
-                startActivityForResult(intent,1);
+                try {
+                    parseJson ();
+                } catch (IOException e) {
+                    e.printStackTrace ( );
+                }
             }
-        });*/
+        });
 
+        findViewById(R.id.buttonNmea).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                lireJSON ();
+            }
+        });
 
 
 
@@ -253,14 +275,14 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
         Log.i("Decimal to NMEA", "NMEA Lat: " + dcmLat + " Lng: " + dcmLng);
         return (new double[] { dcmLat, dcmLng });
     }
-    public void parseJson() {
+    @SuppressLint("WorldWriteableFiles")
+    public void parseJson() throws IOException {
 
         JSONObject json = new JSONObject ( );
         JSONArray jsonWay = new JSONArray ( );
         List<Waypoint> waypoints = Modele.getInstance ( ).getWaypoints ( );
         int cpt = 1;
         for (Waypoint w : waypoints) {
-            Log.i ("mdr", Double.toString (DecimalToNMEAConverter (w.getLocation ( ).getLatitude ( ), w.getLocation ( ).getLongitude ( ))[0]));
             JSONObject json1 = new JSONObject ( );
             try {
                 json1.put ("latitude", w.getLocation ( ).getLatitude ( ));
@@ -279,13 +301,48 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
         } catch (JSONException e) {
             e.printStackTrace ( );
         }
-        // Log.i("test",json.toString ());
+        File sdCard = Environment.getExternalStorageDirectory();
+        File dir = new File (sdCard.getAbsolutePath() + "/Android/data/"+getPackageName ()+"/file");
+        dir.mkdirs();
+        File file = new File(dir, "waypoints.json");
+        file.createNewFile();
+        FileWriter writer = new FileWriter(file);
+        writer.write (json.toString ());
+        writer.flush ();
+        if(writer!= null)
+            writer.close();
     }
 
     public Map<Waypoint, Marker> getMarkers() {
         return markers;
     }
 
+
+    public void lireJSON()
+    {
+        String ret="";
+        try {
+            InputStream inputStream = openFileInput("waypoints.txt");
+            if ( inputStream != null ) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace ( );
+        } catch (IOException e) {
+            e.printStackTrace ( );
+        }
+        Log.i("test",ret);
+    }
     public GoogleMap getmMap() {
         return mMap;
     }
