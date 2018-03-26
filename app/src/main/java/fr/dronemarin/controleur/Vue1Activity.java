@@ -2,6 +2,7 @@ package fr.dronemarin.controleur;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -10,7 +11,15 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
 import fr.dronemarin.R;
+import fr.dronemarin.modele.Client;
+import fr.dronemarin.modele.PositionGPS;
 
 public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -24,7 +33,69 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-    }
+
+
+
+        try {
+            Client client = new Client("127.0.0.1", 55555);
+            Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
+            client.start();
+        }
+        catch (Exception e)
+        {
+            Log.d("", "Erreur");
+
+            e.printStackTrace();
+        }
+/*
+
+        Socket socket;
+        PrintStream theOutputStream;
+
+
+        //new PositionGPS().execute();
+
+        try {
+            InetAddress serveur = InetAddress.getByName("127.0.0.1");
+            socket = new Socket(serveur, 8080);
+
+            Log.d("test","test1");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            Log.d("Verif", "in: "+in.readLine());
+            PrintStream out = new PrintStream(socket.getOutputStream());
+            PositionGPS test;
+
+            int i=0;
+            while(true)
+            {
+                if(i!=0)
+                {
+                    test=new PositionGPS(in.readLine());
+                    Log.d("GetTest", "lat = "+test.getLatitude());
+                    if(test.getTrameGPS())
+                    {
+
+                        float lon=test.getLongitude();
+                        float lat=test.getLatitude();
+
+                        Log.i("test", "Lat: "+lat+" Lon: "+lon);
+                    }
+                }
+                i++;
+            }
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+        }
+*/
+
+
+
+
+}
 
 
     /**
@@ -45,4 +116,8 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
+
+
+
+
 }
