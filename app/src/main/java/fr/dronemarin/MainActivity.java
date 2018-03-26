@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this,Vue1Activity.class);
                 startActivityForResult(intent,1);
-                setContentView(R.layout.activity_vue1);
             }
         });
     }
