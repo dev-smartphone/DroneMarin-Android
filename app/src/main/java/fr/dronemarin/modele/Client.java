@@ -23,7 +23,6 @@ public class Client {
 
     public void start() throws IOException {
         String ligne;
-        String[] trame;
         while (true) {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 

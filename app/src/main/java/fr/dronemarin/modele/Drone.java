@@ -8,14 +8,14 @@ import java.util.ArrayList;
 
 public class Drone {
 
-    private ArrayList<PositionGPS> trajectoire;
+    private ArrayList<PositionGPS> positionGPS;
 
     public Drone() {
-        trajectoire = new ArrayList<>();
+        positionGPS = new ArrayList<>();
     }
 
     public void addPositionGPS(PositionGPS p) {
-        //A modifier -> Ajouter seulement si diffÃ©rent de la derniÃ¨re position
-        trajectoire.add(p);
+        if(this.positionGPS.get(this.positionGPS.size()-1) != p )
+            positionGPS.add(p);
     }
 }
