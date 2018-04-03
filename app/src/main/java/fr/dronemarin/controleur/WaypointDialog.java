@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ public class WaypointDialog extends android.support.v4.app.DialogFragment {
     public interface WaypointsDialogListener {
         void onDialogPositiveClick(DialogInterface dialog);
         void onDialogNegativeClick(DialogInterface dialog);
+        void onWaypointUpdate(DialogInterface dialog, Waypoint waypoint);
     }
 
 
@@ -54,6 +56,9 @@ public class WaypointDialog extends android.support.v4.app.DialogFragment {
                             w.setVitesse(Double.parseDouble(speed.getText().toString()));
                             w.setPriseImage(picture.isChecked());
                             w.setPointStationnaire(stat.isChecked());
+                            Log.i("UPDATE","1");
+                            mListener.onWaypointUpdate(dialog,w);
+
                         }
                         else{
                             mListener.onDialogPositiveClick(dialog);

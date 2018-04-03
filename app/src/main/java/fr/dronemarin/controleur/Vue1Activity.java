@@ -22,7 +22,7 @@ import fr.dronemarin.R;
 import fr.dronemarin.modele.Client;
 import fr.dronemarin.modele.PositionGPS;
 
-public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback {
+public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback{
 
     private GoogleMap mMap;
     Client client;
@@ -36,24 +36,6 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    client = new Client("172.20.10.5", 55555);
-                    Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
-                    client.start(mMap);
-
-
-
-
-                } catch (Exception e) {
-                    Log.d("", "Erreur");
-
-                    e.printStackTrace();
-                }
-            }
-        }).start();
 
 
 
@@ -119,16 +101,45 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
      * installed Google Play services and returned to the app.
      */
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+    public void onMapReady(final GoogleMap googleMap) {
 
-        for(int i=0;i<client.getDrone().getPosition().size();i++)
-        {
-            // Add a marker in Sydney and move the camera
-            LatLng l = new LatLng(client.getDrone().getPosition().get(i).getLatitude(), client.getDrone().getPosition().get(i).getLongitude());
-            mMap.addMarker(new MarkerOptions().position(l).title("Marker"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(l));
-        }
+                try {
+                    mMap = googleMap;
+                    client = new Client("192.168.1.21", 55555);
+                   // Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
+                    client.execute(mMap);
+
+                   // client.start(mMap);
+                    /*for(int i=0;i<client.getDrone().getPosition().size();i++)
+                    {
+                        // Add a marker in Sydney and move the camera
+                        LatLng l = new LatLng(client.getDrone().getPosition().get(i).getLatitude(), client.getDrone().getPosition().get(i).getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(l).title("Marker"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(l));
+                    }*/
+
+                } catch (Exception e) {
+                    Log.d("", "Erreur");
+
+                    e.printStackTrace();
+                }
+
+
+
+        /*while(true){
+            if(client != null){
+                if(client.getDrone()!=null){
+                    if(!client.getDrone().getPosition().isEmpty()){
+                        LatLng l = new LatLng(client.getDrone().getPosition().get(0).getLatitude(), client.getDrone().getPosition().get(0).getLongitude());
+                        mMap.addMarker(new MarkerOptions().position(l).title("Marker"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(l));
+                        client.getDrone().getPosition().remove(client.getDrone().getPosition().get(0));
+                    }
+                }
+            }
+        }*/
+
+
 
 
         // Add a marker in Sydney and move the camera

@@ -52,4 +52,14 @@ public class Waypoint implements Serializable{
     public void setLocation(Location location) {
         this.location = location;
     }
+
+    @Override
+    public String toString() {
+        return "Waypoint{" +
+                "vitesse=" + vitesse +
+                ", priseImage=" + priseImage +
+                ", pointStationnaire=" + pointStationnaire +
+                ", location=" + location +
+                '}';
+    }
 }

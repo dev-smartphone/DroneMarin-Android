@@ -180,6 +180,7 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
         Marker m = mMap.addMarker(new MarkerOptions().draggable(true).snippet("Vitesse : " + speedInt + ", Photo : " + (picture.isChecked() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (stat.isChecked() ? "Oui" : "Non")).position(current).title( ""+Modele.getInstance().getWaypoints().size()));
         Waypoint current = new Waypoint(speedInt,picture.isChecked(),stat.isChecked(),loc);
         markers.put(current,m);
+
         Waypoint previous = Modele.getInstance().addWaypoint(current);
         refreshWithExisting();
         /*if(previous!=null){
@@ -193,8 +194,15 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
 
     }
 
+    @Override
+    public void onWaypointUpdate(DialogInterface dialog, Waypoint waypoint) {
+        Log.i("UPDATE",waypoint+"");
+        markers.get(waypoint).setSnippet("Vitesse : " + waypoint.getVitesse() + ", Photo : " + (waypoint.isPriseImage() ? "Oui" : "Non") + ", " + "Point stationnaire : " + (waypoint.isPriseImage() ? "Oui" : "Non"));
+        markers.get(waypoint).showInfoWindow();
+    }
+
     public void refreshWithExisting(){
-        if(current!=null){
+        if(currentRoad!=null){
             currentRoad.remove();
         }
 
@@ -209,6 +217,7 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
                 markers.put(existingWaypoints.get(i),m);
             }
             markers.get(existingWaypoints.get(i)).setTitle(i+"");
+
         }
 
 

@@ -20,41 +20,20 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
-public class Client {
+public class Client extends AsyncTask<GoogleMap,Void,Void>{
     private Socket socket;
     private Drone drone;
+    private String adresse;
+    private int port;
 
     public Client(String adresse, int port) throws IOException {
-        this.socket = new Socket();
-        this.socket.setSoTimeout(2000);
-        this.socket.connect(new InetSocketAddress(adresse, port),2000);
         this.drone = new Drone();
+        this.adresse = adresse;
+        this.port = port;
     }
 
     public void start(GoogleMap map) throws IOException {
-        String ligne;
-        while (true) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            while (!in.ready()) {}
-            ligne = in.readLine();
-            ligne=in.readLine();
-            //Log.i("ligne", "ligne: "+ ligne);
-            PositionGPS pos = new PositionGPS(ligne);
-            if(pos.getTrameGPS()) {
-
-                drone.addPositionGPS(pos);
-               /* LatLng l = new LatLng(pos.getLatitude(), pos.getLongitude());
-                map.addMarker(new MarkerOptions().position(l).title("Marker"));
-                map.moveCamera(CameraUpdateFactory.newLatLng(l));*/
-                Log.i("", "latitude: " + pos.getLatitude() + " longitude: " + pos.getLongitude());
-
-
-
-
-            }
-
-        }
     }
 
     public Socket getSocket()
@@ -67,5 +46,42 @@ public class Client {
     public Drone getDrone()
     {
         return this.drone;
+    }
+
+
+
+
+    @Override
+    protected Void doInBackground(GoogleMap... googleMaps) {
+
+        String ligne;
+        try{
+            this.socket = new Socket();
+            this.socket.setSoTimeout(2000);
+            this.socket.connect(new InetSocketAddress(adresse, port),2000);
+            while (true) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+                while (!in.ready()) {}
+                ligne = in.readLine();
+                ligne=in.readLine();
+                //Log.i("ligne", "ligne: "+ ligne);
+                PositionGPS pos = new PositionGPS(ligne);
+                if(pos.getTrameGPS()) {
+                    drone.addPositionGPS(pos);
+                    addMarker(googleMaps[0],pos);
+                    Log.i("", "latitude: " + pos.getLatitude() + " longitude: " + pos.getLongitude());
+
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    protected void addMarker(GoogleMap googleMap, PositionGPS pos){
+        LatLng l = new LatLng(pos.getLatitude(), pos.getLongitude());
+        googleMap.addMarker(new MarkerOptions().position(l).title("Marker"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(l));
     }
 }

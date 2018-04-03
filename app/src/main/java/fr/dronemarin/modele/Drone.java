@@ -16,10 +16,10 @@ public class Drone {
     }
 
     public void addPositionGPS(PositionGPS p) {
-
-
          position.add(p);
-
+    }
+    public void removePositionGPS(PositionGPS p){
+        position.remove(p);
     }
 
     public ArrayList<PositionGPS> getPosition()
