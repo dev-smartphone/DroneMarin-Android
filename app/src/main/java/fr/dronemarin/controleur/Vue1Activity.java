@@ -25,6 +25,7 @@ import fr.dronemarin.modele.PositionGPS;
 public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    Client client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,9 +40,11 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void run() {
                 try {
-                    Client client = new Client("10.13.47.107", 55555);
+                    client = new Client("172.20.10.5", 55555);
                     Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
                     client.start(mMap);
+
+
 
 
                 } catch (Exception e) {
@@ -51,6 +54,8 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }).start();
+
+
 
 
 /*
@@ -116,6 +121,15 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
+        for(int i=0;i<client.getDrone().getPosition().size();i++)
+        {
+            // Add a marker in Sydney and move the camera
+            LatLng l = new LatLng(client.getDrone().getPosition().get(i).getLatitude(), client.getDrone().getPosition().get(i).getLongitude());
+            mMap.addMarker(new MarkerOptions().position(l).title("Marker"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(l));
+        }
+
 
         // Add a marker in Sydney and move the camera
         //LatLng sydney = new LatLng(-34, 151);

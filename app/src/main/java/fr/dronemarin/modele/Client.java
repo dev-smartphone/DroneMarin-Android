@@ -42,13 +42,14 @@ public class Client {
             //Log.i("ligne", "ligne: "+ ligne);
             PositionGPS pos = new PositionGPS(ligne);
             if(pos.getTrameGPS()) {
-                Log.i("", "latitude: " + pos.getLatitude() + " longitude: " + pos.getLongitude());
+
                 drone.addPositionGPS(pos);
-                //LatLng coord=new LatLng(pos.getLatitude(),pos.getLongitude());
-                //map.addMarker(new MarkerOptions()
-                  //      .position(coord)
-                    //    .title(""));
-                //map.moveCamera(CameraUpdateFactory.newLatLng(coord));
+               /* LatLng l = new LatLng(pos.getLatitude(), pos.getLongitude());
+                map.addMarker(new MarkerOptions().position(l).title("Marker"));
+                map.moveCamera(CameraUpdateFactory.newLatLng(l));*/
+                Log.i("", "latitude: " + pos.getLatitude() + " longitude: " + pos.getLongitude());
+
+
 
 
             }
