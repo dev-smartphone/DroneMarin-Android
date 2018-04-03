@@ -90,7 +90,7 @@ public class Client extends AsyncTask<GoogleMap,Void,Void>{
         this.socket = new Socket();
         this.socket.setSoTimeout(2000);
         this.socket.connect(new InetSocketAddress(adresse, port),2000);
-        
+
 
         while (true) {
                 BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
