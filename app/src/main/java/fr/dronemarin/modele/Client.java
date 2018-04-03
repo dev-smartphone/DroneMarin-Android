@@ -102,11 +102,12 @@ public class Client extends AsyncTask<GoogleMap,Void,Void>{
                 this.pos = new PositionGPS(ligne);
                 if(pos.getTrameGPS()) {
                     drone.addPositionGPS(pos);
-                    //addMarker(googleMaps[0],pos);
+                   // addMarker(googleMaps[0],pos);
                     LatLng p=new LatLng(pos.getLatitude(),pos.getLongitude());
-                   // this.vue.ajouterPoint(p);
-
+                  // this.vue.ajouterPoint(p);
+                    //p=null;
                     Log.i("", "doinBack.. latitude: " + pos.getLatitude() + " longitude: " + pos.getLongitude());
+                    Log.i("", "p:"+ p.toString());
 
 
 
@@ -121,6 +122,8 @@ public class Client extends AsyncTask<GoogleMap,Void,Void>{
     protected void addMarker(GoogleMap googleMap, PositionGPS pos){
         LatLng l = new LatLng(pos.getLatitude(), pos.getLongitude());
         googleMap.addMarker(new MarkerOptions().position(l).title("Marker"));
+        Log.i("", "marker ajouté");
+
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(l));
     }
 
