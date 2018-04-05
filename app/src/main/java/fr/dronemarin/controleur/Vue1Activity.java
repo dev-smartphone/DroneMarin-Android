@@ -1,5 +1,6 @@
 package fr.dronemarin.controleur;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,12 +12,16 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import fr.dronemarin.R;
 import fr.dronemarin.modele.Client;
@@ -26,6 +31,8 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     Client client;
+    private ArrayList<LatLng> points;
+    private boolean reception;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +42,7 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
         final SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        reception=false;
 
 
 
@@ -105,11 +113,13 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
 
                 try {
                     mMap = googleMap;
-                    client = new Client("192.168.1.21", 55555);
-                   // Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
-                    client.execute(mMap);
+                    //client = new Client("172.20.10.5", 55555);
+//                    Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
+  //                  client.execute(mMap);
+                    this.lancerServeur();
+                    dessinerTrame();
 
-                   // client.start(mMap);
+                    // client.start(mMap);
                     /*for(int i=0;i<client.getDrone().getPosition().size();i++)
                     {
                         // Add a marker in Sydney and move the camera
@@ -123,6 +133,8 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
 
                     e.printStackTrace();
                 }
+
+
 
 
 
@@ -148,6 +160,42 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
+    public void lancerServeur() throws IOException {
+        this.client = new Client("172.20.10.5", 55555,this);
+        client.execute();
+        Log.d("", "Connection au serveur:" + client.getSocket().getInetAddress());
+
+    }
+
+
+
+    private void dessinerTrame()
+    {
+        PolylineOptions trajectoire = new PolylineOptions()
+                .addAll(this.points)
+                .width(15).color(Color.RED);
+
+        // Get back the mutable Polyline
+        if(this.mMap != null && this.points.size() > 1){
+            Polyline polyline =  this.mMap.addPolyline(trajectoire);
+        }
+    }
+
+
+    public void actualiserDessin(LatLng pt) {
+        Log.d("vals : ", pt.latitude+", "+pt.longitude+", size : "+this.points.size());
+        this.points.add(pt);
+        dessinerTrame();
+    }
+
+    public void ajouterPoint(LatLng p)
+    {
+        this.points.add(p);
+    }
+    public boolean getReception()
+    {
+        return  this.reception;
+    }
 
 
 
