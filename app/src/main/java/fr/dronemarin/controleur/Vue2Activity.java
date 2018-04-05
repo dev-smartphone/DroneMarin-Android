@@ -37,11 +37,15 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.Map;
 
 import fr.dronemarin.R;
 import fr.dronemarin.modele.Modele;
+import fr.dronemarin.modele.PositionGPS;
 import fr.dronemarin.modele.Waypoint;
 
 public class Vue2Activity extends FragmentActivity implements Serializable, OnMapReadyCallback, WaypointDialog.WaypointsDialogListener {
@@ -77,11 +81,13 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
         findViewById(R.id.buttonNmea).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                lireJSON ();
+                try {
+                    parseNmea();
+                } catch (IOException e) {
+                    e.printStackTrace ( );
+                }
             }
         });
-
-
 
 
     }
@@ -232,53 +238,101 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-
-    public double[] DecimalToNMEAConverter(double lat, double lng) {
-        String dcmLatString;
-        int latDegree;
-        double latMinutes, dcmLat, absLat;
-
-        String dcmLngString;
-        int lngDegree;
-        double lngMinutes, dcmLng, absLng;
-
-        Log.i("Decimal to NMEA", "Decimal To NMEA: " + lat + " Longitude: "  + lng);
-        if (lat < 0) {
-            absLat = lat * -1;
-        } else {
-            absLat = lat;
-        }
-
+    public String decimalToNmea (double lat, double lng) {
+        String dcmLatString = null;
+        int latDegree = 0;
+        double latMinutes = 0, dcmLat = 0, absLat = 0;
+        String dcmLngString = null;
+        int lngDegree = 0;
+        double lngMinutes = 0, dcmLng = 0, absLng = 0;
+        if (lat < 0) {absLat = lat * -1;}
+        else {absLat = lat;}
         latDegree = (int) absLat;
         latMinutes = (absLat - latDegree) * 60;
         dcmLatString = String.valueOf(latDegree)
                 + String.valueOf(latMinutes);
         dcmLat = Double.parseDouble(dcmLatString);
         dcmLat = Math.round(dcmLat * 10000.0) / 10000.0;
-
         if (lat < 0) {
             dcmLat *= -1;
         }
-        // ************************************************//
         if (lng < 0) {
             absLng = lng * -1;
         } else {
             absLng = lng;
         }
-
         lngDegree = (int) absLng;
         lngMinutes = (absLng - lngDegree) * 60;
         dcmLngString = String.valueOf(lngDegree)
                 + String.valueOf(lngMinutes);
         dcmLng = Double.parseDouble(dcmLngString);
         dcmLng = Math.round(dcmLng * 10000.0) / 10000.0;
-
-        if (lng < 0) {
-            dcmLng *= -1;
+        SimpleDateFormat dateFormat = new SimpleDateFormat ("dd-MM-yyyy HH:mm:ss.SSS");
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        String time = dateFormat.format(new Date()).split (" ")[1].replaceAll (":","");
+        String res = "$GPGLL,";
+        String strLat = String.valueOf(Math.abs(dcmLat));
+        if (Math.abs(lat)>10)
+        {
+            if (dcmLat<1000)
+            {
+                strLat = strLat.substring (0,2)+'0'+strLat.substring(2,strLat.length ());
+            }
         }
-        Log.i("Decimal to NMEA", "NMEA Lat: " + dcmLat + " Lng: " + dcmLng);
-        return (new double[] { dcmLat, dcmLng });
+        else
+        {
+            strLat= '0'+strLat;
+            if (strLat.split ("\\.")[0].length ()<4)
+            {
+                strLat = strLat.substring (0,2)+'0'+strLat.substring(2,strLat.length ());
+            }
+        }
+        String strLng = String.valueOf(Math.abs (dcmLng));
+        if (Math.abs(lng)>100)
+        {
+            if (dcmLng<10000)
+            {
+                strLng = strLng.substring (0,3)+'0'+strLng.substring(3,strLng.length ());
+            }
+        }
+        else
+        {
+            if (Math.abs(lng)>10)
+            {
+                strLng='0'+strLng;
+            }
+            else
+            {
+                strLng="00"+strLng;
+            }
+            if (strLng.split ("\\.")[0].length ()<5)
+            {
+                strLng = strLng.substring (0,3)+'0'+strLng.substring(3,strLng.length ());
+            }
+        }
+        res+=(lat>0 ? strLat+",N," : strLat+",S,");
+        res+=(lng>0 ? strLng+",E," : strLng+",W,");
+        res+=time+",V*";
+        res+= getSum(res);
+        return res;
     }
+    private static String getSum(String in) {
+        int checksum = 0;
+        if (in.startsWith("$")) {
+            in = in.substring(1, in.length());
+        }
+        int end = in.indexOf('*');
+        if (end == -1)
+            end = in.length();
+        for (int i = 0; i < end; i++) {
+            checksum = checksum ^ in.charAt(i);
+        }
+        String hex = Integer.toHexString(checksum);
+        if (hex.length() == 1)
+            hex = "0" + hex;
+        return hex.toUpperCase();
+    }
+
     @SuppressLint("WorldWriteableFiles")
     public void parseJson() throws IOException {
 
@@ -321,31 +375,20 @@ public class Vue2Activity extends FragmentActivity implements Serializable, OnMa
         return markers;
     }
 
-
-    public void lireJSON()
-    {
-        String ret="";
-        try {
-            InputStream inputStream = openFileInput("waypoints.txt");
-            if ( inputStream != null ) {
-                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                String receiveString = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
-                    stringBuilder.append(receiveString);
-                }
-
-                inputStream.close();
-                ret = stringBuilder.toString();
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace ( );
-        } catch (IOException e) {
-            e.printStackTrace ( );
+    public void parseNmea() throws IOException {
+        File sdCard = Environment.getExternalStorageDirectory();
+        File dir = new File (sdCard.getAbsolutePath() + "/Android/data/"+getPackageName ()+"/file");
+        dir.mkdirs();
+        File file = new File(dir, "waypoints.nmea");
+        file.createNewFile();
+        FileWriter writer = new FileWriter(file);
+        for ( Waypoint w : Modele.getInstance ().getWaypoints ())
+        {
+            writer.write (decimalToNmea (w.getLocation ().getLatitude (),w.getLocation ().getLongitude ())+"\n");
         }
-        Log.i("test",ret);
+        writer.flush ();
+        if(writer!= null)
+            writer.close();
     }
     public GoogleMap getmMap() {
         return mMap;
