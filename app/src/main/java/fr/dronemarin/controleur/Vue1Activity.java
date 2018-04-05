@@ -79,22 +79,29 @@ public class Vue1Activity extends FragmentActivity implements OnMapReadyCallback
         Runnable r =new Runnable() {
             @Override
             public void run() {
-/*
+
+                mMap.addMarker(new MarkerOptions().position(points.get(0)).title("Départ"));
+              mMap.moveCamera(CameraUpdateFactory.newLatLng(points.get(points.size()-1)));
+              // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(points.get(points.size()-1).latitude,points.get(points.size()-1).longitude),5));
+
                 PolylineOptions trajectoire = new PolylineOptions()
                         .addAll(points)
                         .width(15).color(Color.RED);
 
                 // Get back the mutable Polyline
+
                 if(mMap != null && points.size() > 1){
                     Polyline polyline =  mMap.addPolyline(trajectoire);
                     Log.i("", "desssiner tram");
-                }*/
+                }
+
+                /*
             for(int i=0;i<points.size();i++)
             {
 
                 mMap.addMarker(new MarkerOptions().position(points.get(i)).title("Marker"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(points.get(i)));
-            }
+            }*/
             }
         };
         this.runOnUiThread(r);
